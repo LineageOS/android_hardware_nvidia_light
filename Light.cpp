@@ -24,6 +24,7 @@
 
 #define BACKLIGHT_DIR             "/sys/class/backlight"
 #define BACKLIGHT_NODE            "brightness"
+#define ROTHLED_NODE              "/sys/class/leds/roth-led/brightness"
 
 namespace {
 using android::hardware::light::V2_0::LightState;
@@ -43,6 +44,7 @@ namespace implementation {
 
 Light::Light() {
     auto backlightFn(std::bind(&Light::setBacklight,    this, std::placeholders::_1));
+    auto buttonsFn  (std::bind(&Light::setButtonsLight, this, std::placeholders::_1));
 
     for (auto & node : std::experimental::filesystem::directory_iterator(BACKLIGHT_DIR)) {
         if (mBacklight.open(node.path().string() + "/" BACKLIGHT_NODE), mBacklight.is_open()) {
@@ -50,6 +52,9 @@ Light::Light() {
 	    break;
 	}
     }
+
+    if (mPowerLed.open(ROTHLED_NODE), mPowerLed.is_open())
+        mLights.emplace(std::make_pair(Type::BUTTONS, buttonsFn));
 }
 
 // Methods from ::android::hardware::light::V2_0::ILight follow.
@@ -81,6 +86,16 @@ void Light::setBacklight(const LightState& state) {
     std::lock_guard<std::mutex> lock(mLock);
 
     mBacklight << rgbToBrightness(state) << std::endl;
+}
+
+void Light::setButtonsLight(const LightState& state) {
+    std::lock_guard<std::mutex> lock(mLock);
+
+    int brightness = rgbToBrightness(state);
+
+    // Do not turn off power led, only set its brightness
+    if (mPowerLed.is_open() && brightness)
+        mPowerLed << brightness << std::endl;
 }
 
 }  // namespace implementation

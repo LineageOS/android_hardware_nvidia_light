@@ -23,8 +23,10 @@ struct Light : public ILight {
 
 private:
     void setBacklight(const LightState& state);
+    void setButtonsLight(const LightState& state);
 
     std::ofstream mBacklight;
+    std::ofstream mPowerLed;
 
     std::unordered_map<Type, std::function<void(const LightState&)>> mLights;
     std::mutex mLock;
