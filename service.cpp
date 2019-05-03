@@ -22,6 +22,7 @@
 #include <android/log.h>
 #include <hidl/HidlTransportSupport.h>
 #include <hardware/lights.h>
+#include "Light.h"
 
 using android::sp;
 using android::status_t;
@@ -36,9 +37,25 @@ using android::hardware::light::V2_0::implementation::Light;
 
 int main() {
 
+    status_t status;
+    android::sp<Light> service = nullptr;
+
     ALOGI("Light HAL Service 2.0 for Nvidia is starting.");
 
+    service = new Light();
+    if (service == nullptr) {
+        ALOGE("Can not create an instance of Light HAL Iface, exiting.");
+
+        goto shutdown;
+    }
+
     configureRpcThreadpool(1, true /*callerWillJoin*/);
+
+    status = service->registerAsService();
+    if (status != OK) {
+        ALOGE("Could not register service for Light HAL Iface (%d).", status);
+        goto shutdown;
+    }
 
     ALOGI("Light Service is ready");
     joinRpcThreadpool();
