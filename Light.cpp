@@ -25,6 +25,8 @@
 #define BACKLIGHT_DIR             "/sys/class/backlight"
 #define BACKLIGHT_NODE            "brightness"
 #define ROTHLED_NODE              "/sys/class/leds/roth-led/brightness"
+#define LIGHTBAR_NODE             "/sys/clas/leds/led-lightbar/brightness"
+#define LIGHTBAR_STATE            "/sys/clas/leds/led-lightbar/mode"
 
 namespace {
 using android::hardware::light::V2_0::LightState;
@@ -55,6 +57,10 @@ Light::Light() {
 
     if (mPowerLed.open(ROTHLED_NODE), mPowerLed.is_open())
         mLights.emplace(std::make_pair(Type::BUTTONS, buttonsFn));
+    else if (mPowerLed.open(LIGHTBAR_NODE), mPowerLed.is_open()) {
+        mPowerLedState.open(LIGHTBAR_STATE);
+        mLights.emplace(std::make_pair(Type::BUTTONS, buttonsFn));
+    }
 }
 
 // Methods from ::android::hardware::light::V2_0::ILight follow.
@@ -85,7 +91,12 @@ Return<void> Light::getSupportedTypes(getSupportedTypes_cb _hidl_cb) {
 void Light::setBacklight(const LightState& state) {
     std::lock_guard<std::mutex> lock(mLock);
 
-    mBacklight << rgbToBrightness(state) << std::endl;
+    int brightness = rgbToBrightness(state);
+
+    if (mPowerLedState.is_open())
+        mPowerLedState   << (brightness ? "normal" : "breathe") << std::endl;
+
+    mBacklight << brightness << std::endl;
 }
 
 void Light::setButtonsLight(const LightState& state) {
