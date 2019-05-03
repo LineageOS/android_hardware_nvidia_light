@@ -27,6 +27,11 @@
 #define ROTHLED_NODE              "/sys/class/leds/roth-led/brightness"
 #define LIGHTBAR_NODE             "/sys/clas/leds/led-lightbar/brightness"
 #define LIGHTBAR_STATE            "/sys/clas/leds/led-lightbar/mode"
+#define NVSHIELDLED_DIR           "/sys/class/nvshieldled"
+#define NVSHIELDLED_POWER_NODE    "brightness"
+#define NVSHIELDLED_POWER_STATE   "state"
+#define NVSHIELDLED_BUTTONS_NODE  "brightness2"
+#define NVSHIELDLED_BUTTONS_STATE "state2"
 
 namespace {
 using android::hardware::light::V2_0::LightState;
@@ -60,6 +65,15 @@ Light::Light() {
     else if (mPowerLed.open(LIGHTBAR_NODE), mPowerLed.is_open()) {
         mPowerLedState.open(LIGHTBAR_STATE);
         mLights.emplace(std::make_pair(Type::BUTTONS, buttonsFn));
+    } else if (std::experimental::filesystem::exists(NVSHIELDLED_DIR)) {
+        for (auto & node : std::experimental::filesystem::directory_iterator(NVSHIELDLED_DIR)) {
+            mPowerLed.open(node.path().string() + "/" NVSHIELDLED_POWER_NODE);
+            mPowerLedState.open(node.path().string() + "/" NVSHIELDLED_POWER_STATE);
+            mButtonLeds.open(node.path().string() + "/" NVSHIELDLED_BUTTONS_NODE);
+            mButtonLedsState.open(node.path().string() + "/" NVSHIELDLED_BUTTONS_STATE);
+            if (mPowerLedState.is_open() || mButtonLedsState.is_open())
+                mLights.emplace(std::make_pair(Type::BUTTONS, buttonsFn));
+        }
     }
 }
 
@@ -107,6 +121,9 @@ void Light::setButtonsLight(const LightState& state) {
     // Do not turn off power led, only set its brightness
     if (mPowerLed.is_open() && brightness)
         mPowerLed << brightness << std::endl;
+
+    if (mButtonLeds.is_open())
+        mButtonLeds << brightness << std::endl;
 }
 
 }  // namespace implementation
