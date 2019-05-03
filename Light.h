@@ -27,6 +27,7 @@ private:
 
     std::ofstream mBacklight;
     std::ofstream mPowerLed;
+    std::ofstream mPowerLedState;
 
     std::unordered_map<Type, std::function<void(const LightState&)>> mLights;
     std::mutex mLock;
