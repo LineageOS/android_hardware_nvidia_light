@@ -12,21 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-cc_library_shared {
-    name: "libc++_experimental",
-    vendor: true,
-
-    srcs: [
-        "filesystem/directory_iterator.cpp",
-        "filesystem/operations.cpp",
-        "filesystem/path.cpp",
-    ],
-
-    shared_libs: [
-        "libc++",
-    ],
-}
-
 cc_binary {
 
     srcs: [
@@ -43,7 +28,6 @@ cc_binary {
         "libhardware",
         "libutils",
         "android.hardware.light@2.0",
-        "libc++_experimental",
     ],
 
     name: "android.hardware.light@2.0-service-nvidia",
