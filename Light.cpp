@@ -18,7 +18,7 @@
 
 #include "Light.h"
 
-#include <android-base/logging.h>
+#include <log/log.h>
 
 #include <experimental/filesystem>
 
@@ -55,18 +55,22 @@ Light::Light() {
 
     for (auto & node : std::experimental::filesystem::directory_iterator(BACKLIGHT_DIR)) {
         if (mBacklight.open(node.path().string() + "/" BACKLIGHT_NODE), mBacklight.is_open()) {
+            ALOGI("Found backlight node: %s", node.path().string().c_str());
             mLights.emplace(std::make_pair(Type::BACKLIGHT, backlightFn));
 	    break;
 	}
     }
 
-    if (mPowerLed.open(ROTHLED_NODE), mPowerLed.is_open())
+    if (mPowerLed.open(ROTHLED_NODE), mPowerLed.is_open()) {
+        ALOGI("Found roth led node");
         mLights.emplace(std::make_pair(Type::BUTTONS, buttonsFn));
-    else if (mPowerLed.open(LIGHTBAR_NODE), mPowerLed.is_open()) {
+    } else if (mPowerLed.open(LIGHTBAR_NODE), mPowerLed.is_open()) {
+        ALOGI("Found lightbar node");
         mPowerLedState.open(LIGHTBAR_STATE);
         mLights.emplace(std::make_pair(Type::BUTTONS, buttonsFn));
     } else if (std::experimental::filesystem::exists(NVSHIELDLED_DIR)) {
         for (auto & node : std::experimental::filesystem::directory_iterator(NVSHIELDLED_DIR)) {
+            ALOGI("Found nvshieldled node: %s", node.path().string().c_str());
             mPowerLed.open(node.path().string() + "/" NVSHIELDLED_POWER_NODE);
             mPowerLedState.open(node.path().string() + "/" NVSHIELDLED_POWER_STATE);
             mButtonLeds.open(node.path().string() + "/" NVSHIELDLED_BUTTONS_NODE);
