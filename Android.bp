@@ -24,7 +24,6 @@ cc_binary {
         "libcutils",
         "libdl",
         "libhidlbase",
-        "libhidltransport",
         "libhardware",
         "libutils",
         "android.hardware.light@2.0",
