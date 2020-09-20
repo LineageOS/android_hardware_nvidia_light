@@ -32,6 +32,7 @@ cc_binary {
 
     name: "android.hardware.light@2.0-service-nvidia",
     init_rc: ["android.hardware.light@2.0-service-nvidia.rc"],
+    vintf_fragments: ["android.hardware.light@2.0-service.xml"],
     relative_install_path: "hw",
     vendor: true,
 
