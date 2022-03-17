@@ -53,11 +53,14 @@ Light::Light() {
     auto backlightFn(std::bind(&Light::setBacklight,    this, std::placeholders::_1));
     auto buttonsFn  (std::bind(&Light::setButtonsLight, this, std::placeholders::_1));
 
+    // Always declare a backlight, even if one isn't found.
+    // Required to control power led on sleep/wake.
+    mLights.emplace(std::make_pair(Type::BACKLIGHT, backlightFn));
+
     for (auto & node : std::experimental::filesystem::directory_iterator(BACKLIGHT_DIR)) {
         if (mBacklight.open(node.path().string() + "/" BACKLIGHT_NODE), mBacklight.is_open()) {
             ALOGI("Found backlight node: %s", node.path().string().c_str());
-            mLights.emplace(std::make_pair(Type::BACKLIGHT, backlightFn));
-	    break;
+            break;
 	}
     }
 
@@ -79,6 +82,11 @@ Light::Light() {
                 mLights.emplace(std::make_pair(Type::BUTTONS, buttonsFn));
         }
     }
+
+    if (mPowerLed.is_open())
+        mPowerLed >> mLedBrightness;
+    else
+        mLedBrightness = 0;
 }
 
 // Methods from ::android::hardware::light::V2_0::ILight follow.
@@ -113,21 +121,24 @@ void Light::setBacklight(const LightState& state) {
 
     if (mPowerLedState.is_open())
         mPowerLedState   << (brightness ? "normal" : "breathe") << std::endl;
+    else if (mPowerLed.is_open())
+        mPowerLed        << (brightness ? mLedBrightness : 0) << std::endl;
 
-    mBacklight << brightness << std::endl;
+    if (mBacklight.is_open())
+        mBacklight << brightness << std::endl;
 }
 
 void Light::setButtonsLight(const LightState& state) {
     std::lock_guard<std::mutex> lock(mLock);
 
-    int brightness = rgbToBrightness(state);
+    mLedBrightness = rgbToBrightness(state);
 
     // Do not turn off power led, only set its brightness
-    if (mPowerLed.is_open() && brightness)
-        mPowerLed << brightness << std::endl;
+    if (mPowerLed.is_open() && mLedBrightness)
+        mPowerLed << mLedBrightness << std::endl;
 
-    if (mButtonLeds.is_open())
-        mButtonLeds << brightness << std::endl;
+    if (mButtonLeds.is_open() && mLedBrightness)
+        mButtonLeds << mLedBrightness << std::endl;
 }
 
 }  // namespace implementation
