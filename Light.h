@@ -26,10 +26,11 @@ private:
     void setButtonsLight(const LightState& state);
 
     std::ofstream mBacklight;
-    std::ofstream mPowerLed;
+    std::fstream mPowerLed;
     std::ofstream mPowerLedState;
     std::ofstream mButtonLeds;
     std::ofstream mButtonLedsState;
+    int8_t mLedBrightness;
 
     std::unordered_map<Type, std::function<void(const LightState&)>> mLights;
     std::mutex mLock;
