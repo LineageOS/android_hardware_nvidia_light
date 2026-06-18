@@ -15,31 +15,6 @@
 cc_binary {
 
     srcs: [
-        "Light-hidl.cpp",
-        "service-hidl.cpp",
-    ],
-
-    shared_libs: [
-        "liblog",
-        "libcutils",
-        "libdl",
-        "libhidlbase",
-        "libhardware",
-        "libutils",
-        "android.hardware.light@2.0",
-    ],
-
-    name: "android.hardware.light@2.0-service-nvidia",
-    init_rc: ["android.hardware.light@2.0-service-nvidia.rc"],
-    vintf_fragments: ["android.hardware.light@2.0-service.xml"],
-    relative_install_path: "hw",
-    vendor: true,
-
-}
-
-cc_binary {
-
-    srcs: [
         "Light-aidl.cpp",
         "service-aidl.cpp",
     ],
