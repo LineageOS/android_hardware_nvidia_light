@@ -98,7 +98,7 @@ ndk::ScopedAStatus Light::setLightState(int32_t in_id, const HwLightState& in_st
         return ndk::ScopedAStatus::ok();
     }
 
-    return ndk::ScopedAStatus::fromExceptionCode(EX_SERVICE_SPECIFIC);
+    return ndk::ScopedAStatus::fromExceptionCode(EX_UNSUPPORTED_OPERATION);
 }
 
 ndk::ScopedAStatus Light::getLights(std::vector<HwLight>* _aidl_return) {
