@@ -22,6 +22,30 @@
       },
       "revId": "5ee9269316d191380dbf9dfc4b2c69e6734660be",
       "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7cf8b728_70a6c131",
+        "filename": "Android.bp",
+        "patchSetId": 1
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 14048
+      },
+      "writtenOn": "2026-10-25T04:33:46Z",
+      "side": 1,
+      "message": "Maybe I\u0027ll do some cleanup in a followup. But merging this now to unbreak builds.",
+      "parentUuid": "6d0a4bb7_17bc8c14",
+      "range": {
+        "startLine": 18,
+        "startChar": 0,
+        "endLine": 19,
+        "endChar": 27
+      },
+      "revId": "5ee9269316d191380dbf9dfc4b2c69e6734660be",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71"
     }
   ]
 }
